@@ -221,6 +221,36 @@ ul.bl li.lo::before{background:var(--amber)}
 
 /*  FOOTER  */
 .footer{text-align:center;padding:24px 0 0;font-size:10px;color:var(--text3);letter-spacing:.5px;border-top:1px solid var(--border);margin-top:8px;font-weight:500}
+
+/* ===== EDIT MODE ===== */
+.e{cursor:pointer;border-radius:3px;padding:0 2px;transition:background .12s,outline .12s}
+.edit-on .e{outline:1.5px dashed rgba(37,99,235,.45)}
+.edit-on .e:hover{background:rgba(37,99,235,.11);outline-color:var(--blue)}
+.e-inp{border:1.5px solid var(--blue)!important;border-radius:4px;padding:1px 5px;font:inherit;background:var(--card);color:var(--text);outline:none;min-width:36px;max-width:140px;text-align:inherit}
+.ea-btn{background:none;border:1px dashed rgba(37,99,235,.35);color:var(--blue);border-radius:4px;padding:1px 6px;cursor:pointer;font-size:10px;margin-left:5px;opacity:0;transition:opacity .15s;font-family:var(--font)}
+.edit-on .ea-btn{opacity:1}
+.edit-on .ea-btn:hover{background:rgba(37,99,235,.1)}
+.edit-on .st-pill{cursor:pointer!important}
+.edit-on .st-pill:hover{opacity:.8}
+.edit-on [data-sum-st]{cursor:pointer}
+#e-toolbar{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a3a5c 0%,#0e6e88 100%);color:#fff;border-radius:30px;padding:10px 20px;display:none;align-items:center;gap:12px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);font-size:12.5px;font-weight:500;white-space:nowrap}
+#e-toolbar code{background:rgba(255,255,255,.2);padding:1px 7px;border-radius:4px;font-size:11px;letter-spacing:.5px}
+.e-tb-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;padding:5px 13px;cursor:pointer;font-size:12px;font-weight:500;font-family:var(--font);transition:background .15s}
+.e-tb-btn:hover{background:rgba(255,255,255,.28)}
+.e-tb-btn.ex{background:rgba(220,38,38,.35)}.e-tb-btn.ex:hover{background:rgba(220,38,38,.55)}
+#e-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center}
+.e-mbg{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.e-mbox{position:relative;background:var(--card);border-radius:16px;padding:24px;width:min(540px,93vw);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.e-mhd{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.e-mhd button{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1;padding:0 2px}
+.e-mhint{font-size:11px;color:var(--text3);margin-bottom:8px}
+.e-mta{width:100%;min-height:150px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font:13px/1.65 var(--font);background:var(--bg);color:var(--text);resize:vertical;margin-top:2px}
+.e-mta:focus{outline:none;border-color:var(--blue)}
+.e-mft{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.e-mft button{padding:7px 18px;border-radius:8px;cursor:pointer;font:600 13px var(--font);border:1.5px solid var(--border);background:var(--bg);color:var(--text);transition:background .15s}
+.e-msave{background:var(--blue)!important;color:#fff!important;border-color:var(--blue)!important}
+.e-msave:hover{background:#1d4ed8!important}
+#e-toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:#1E3A5F;color:#fff;padding:8px 20px;border-radius:20px;font-size:12.5px;font-weight:500;z-index:10001;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -238,6 +268,14 @@ ul.bl li.lo::before{background:var(--amber)}
     <button class="dark-btn" id="dtb" onclick="tgDark()">◑</button>
   </div>
 </header>
+
+<!-- EDIT TOOLBAR -->
+<div id="e-toolbar">
+  <span>✏ EDIT MODE &nbsp;·&nbsp; cheat code: <code>evora</code></span>
+  <button class="e-tb-btn" onclick="exportCode()" title="Copy WS[] and SUM[] arrays to clipboard">⬇ Export Code</button>
+  <button class="e-tb-btn ex" onclick="toggleEdit()">✕ Exit</button>
+</div>
+<div id="e-toast"></div>
 
 <!-- NAV -->
 <nav class="nav">
@@ -430,11 +468,11 @@ function renderSumTable(){
   tb.innerHTML=SUM.map((w,i)=>{
     const c=sc(w.s),l=sl(w.s);
     return`<tr>
-      <td><span class="pl" onclick="jTo('${IDS[i]}')">${w.n}</span></td>
-      <td style="color:var(--text2);font-size:12px">${w.l}</td>
-      <td><span class="sbadge"><span style="color:${c}">${l}</span></span></td>
-      <td><div class="pbar-wrap"><div class="pbar-track"><div class="pbar-fill" style="width:${w.p||0}%;background:${c}"></div></div><span class="pct-lbl">${w.p!=null?w.p+'%':'—'}</span></div></td>
-      <td style="font-size:12px;color:var(--text2);line-height:1.45">${w.h}</td>
+      <td>${editMode?`<span class="e" data-e="sum|${i}|n">${w.n}</span>`:`<span class="pl" onclick="jTo('${IDS[i]}')">${w.n}</span>`}</td>
+      <td style="color:var(--text2);font-size:12px">${E('sum',String(i),'l',w.l)}</td>
+      <td><span class="sbadge"${editMode?` data-sum-st="${i}" title="Click to cycle: On Track → Monitor → At Risk"`:''}><span style="color:${c}">${l}</span></span></td>
+      <td><div class="pbar-wrap"><div class="pbar-track"><div class="pbar-fill" style="width:${w.p||0}%;background:${c}"></div></div><span class="pct-lbl">${EP('sum',String(i),'p',w.p)}</span></div></td>
+      <td style="font-size:12px;color:var(--text2);line-height:1.45">${E('sum',String(i),'h',w.h)}</td>
     </tr>`;
   }).join('');
 }
@@ -478,20 +516,20 @@ function renderWS(){
     const c=sc(w.st),l=sl(w.st),sp=spc(w.st);
     const whi=w.hi||[],wlo=w.lo||[],wsup=w.sup||[],wnx=w.nx||[];
     const dp=pof(w.d,w.tot),ip=pof(w.i,w.tot),tp=pof(w.t,w.tot);
-    const pd=w.pct!=null?w.pct+'%':w.phase||'—';
+    const pd=editMode&&w.pct!=null?EP('ws',w.id,'pct',w.pct):(w.pct!=null?w.pct+'%':w.phase||'—');
     const jbase=`https://evorait.atlassian.net/issues/?jql=project%20%3D%20${w.proj}`;
 
     // CELL 1 — Updates
     let c1=`<div class="cell ct" style="--ca:${N}"><div class="cell-lbl">Updates ${w.st==='mon'?`<span class="atag">Monitor</span>`:''}</div>`;
-    if(whi.length){c1+=`<div class="slbl h"> Highlights</div><ul class="bl">`;whi.forEach(h=>c1+=`<li class="hi">${h}</li>`);c1+=`</ul>`;}
-    if(wlo.length){c1+=`<div class="slbl l" style="margin-top:12px">Lowlights</div><ul class="bl">`;wlo.forEach(l=>c1+=`<li class="lo">${l}</li>`);c1+=`</ul>`;}
+    if(whi.length||editMode){c1+=`<div class="slbl h">${evArr(w.id,'hi',' Highlights')}</div><ul class="bl">`;whi.forEach(h=>c1+=`<li class="hi">${h}</li>`);c1+=`</ul>`;}
+    if(wlo.length||editMode){c1+=`<div class="slbl l" style="margin-top:12px">${evArr(w.id,'lo','Lowlights')}</div><ul class="bl">`;wlo.forEach(l=>c1+=`<li class="lo">${l}</li>`);c1+=`</ul>`;}
     c1+=`</div>`;
 
     // CELL 2 — Support + Next Steps
-    let c2=`<div class="cell ct" style="--ca:${A}"><div class="cell-lbl">Support Required</div><ul class="bl">`;
+    let c2=`<div class="cell ct" style="--ca:${A}"><div class="cell-lbl">${evArr(w.id,'sup','Support Required')}</div><ul class="bl">`;
     wsup.forEach(s=>c2+=`<li>${s}</li>`);c2+=`</ul>`;
     if(w.isRec){
-          }    c2+=`<div class="cell-divider"></div><div class="cell-lbl">Next Steps</div><ul class="bl">`;
+          }    c2+=`<div class="cell-divider"></div><div class="cell-lbl">${evArr(w.id,'nx','Next Steps')}</div><ul class="bl">`;
     wnx.forEach(n=>c2+=`<li>${n}</li>`);c2+=`</ul></div>`;
 
     // CELL 3 — Progress
@@ -585,9 +623,9 @@ function renderWS(){
           <div class="dm"><div class="dp">${pd}</div><div class="dlbl">${w.pct!=null?'done':''}</div></div>
         </div>
         <div class="leg">
-          <div class="lr">Completed<span class="ln">${w.d}</span></div>
-          <div class="lr">In Progress<span class="ln">${w.i}</span></div>
-          <div class="lr">Yet to Start<span class="ln">${w.t}</span></div>
+          <div class="lr">Completed<span class="ln">${E('ws',w.id,'d',w.d)}</span></div>
+          <div class="lr">In Progress<span class="ln">${E('ws',w.id,'i',w.i)}</span></div>
+          <div class="lr">Yet to Start<span class="ln">${E('ws',w.id,'t',w.t)}</span></div>
         </div>
       </div>
       <div class="sbar">
@@ -642,12 +680,12 @@ function renderWS(){
         <div class="ws-left">
           <div class="ws-num">${w.num}</div>
           <div>
-            <div class="wsn">${w.name}</div>
-            <div class="wsm">Lead: <strong>${w.lead}</strong>${w.phase?' &nbsp;·&nbsp; Phase: '+w.phase:''}</div>
+            <div class="wsn">${E('ws',w.id,'name',w.name)}</div>
+            <div class="wsm">Lead: <strong>${E('ws',w.id,'lead',w.lead)}</strong>${w.phase?' &nbsp;·&nbsp; Phase: '+w.phase:''}</div>
           </div>
         </div>
         <div class="ws-right">
-          <span class="st-pill ${sp}">${l}</span>
+          <span class="st-pill ${sp}"${editMode?` data-ws-st="${w.id}" title="Click to cycle: On Track → Monitor → At Risk"`:''} >${l}</span>
           <div class="ws-pct">
             <div class="ws-pct-val">${pd}</div>
             <div class="ws-pct-lbl">${w.pct!=null?'Complete':w.phase?'Phase':''}</div>
@@ -787,6 +825,174 @@ function tgDark(){
 
 renderSumTable();
 renderOvCharts();
+
+// ===== EDIT MODE =====
+let editMode=false;
+
+// Helper: wrap value in editable span when edit mode is on
+function E(type,id,field,val){
+  if(!editMode)return val==null?'—':String(val);
+  return`<span class="e" data-e="${type}|${id}|${field}">${val==null?'':val}</span>`;
+}
+// Helper: percentage fields (stores number, displays number+%)
+function EP(type,id,field,val){
+  if(!editMode)return val!=null?val+'%':'—';
+  return`<span class="e" data-e="${type}|${id}|${field}">${val!=null?val:''}</span>`;
+}
+// Helper: array fields — show label + edit button in edit mode
+function evArr(id,field,label){
+  if(!editMode)return label;
+  return`${label} <button class="ea-btn" onclick="openArrEd('${id}','${field}',event)">✏ edit</button>`;
+}
+
+// Cheat code detector — type "evora" anywhere (not in an input)
+let _seq='';
+document.addEventListener('keydown',function(e){
+  if(e.target.matches('input,textarea,[contenteditable="true"]'))return;
+  _seq=(_seq+e.key.toLowerCase()).slice(-5);
+  if(_seq==='evora'){toggleEdit();_seq='';}
+});
+
+function toggleEdit(){
+  editMode=!editMode;
+  document.body.classList.toggle('edit-on',editMode);
+  const tb=document.getElementById('e-toolbar');
+  if(tb)tb.style.display=editMode?'flex':'none';
+  showToast(editMode?'✏ Edit mode ON — click any value to edit':'Edit mode OFF');
+  reRenderAll();
+}
+
+function reRenderAll(){
+  renderSumTable();
+  if(document.getElementById('s-ws').classList.contains('active'))renderWS();
+}
+
+// Click handler for all edit interactions
+document.addEventListener('click',function(e){
+  if(!editMode)return;
+
+  // Editable value span
+  const es=e.target.closest('.e[data-e]');
+  if(es&&!es.querySelector('input')){
+    e.preventDefault();e.stopPropagation();
+    const[type,id,field]=es.dataset.e.split('|');
+    const cur=es.textContent.trim();
+    const inp=document.createElement('input');
+    inp.className='e-inp';inp.type='text';inp.value=cur;
+    inp.style.width=Math.max(48,(cur.length+2)*9)+'px';
+    es.innerHTML='';es.appendChild(inp);inp.focus();inp.select();
+    let saved=false;
+    function done(){if(saved)return;saved=true;applyEdit(type,id,field,inp.value.trim());}
+    inp.addEventListener('blur',done);
+    inp.addEventListener('keydown',k=>{
+      if(k.key==='Enter'){k.preventDefault();done();}
+      if(k.key==='Escape'){k.preventDefault();saved=true;reRenderAll();}
+    });
+    return;
+  }
+
+  // WS status pill cycle
+  const wsPill=e.target.closest('[data-ws-st]');
+  if(wsPill){
+    const id=wsPill.dataset.wsSt;
+    const w=WS.find(x=>x.id===id);
+    if(w){
+      const cyc={on:'mon',mon:'risk',risk:'on'};
+      w.st=cyc[w.st]||'on';
+      const si=SUM.findIndex(s=>s.n===w.name);
+      if(si>=0)SUM[si].s=w.st;
+      showToast('Status → '+(['on','mon','risk'].includes(w.st)?{on:'On Track',mon:'Monitor',risk:'At Risk'}[w.st]:w.st));
+      reRenderAll();
+    }
+    return;
+  }
+
+  // Summary table status badge cycle
+  const sumBadge=e.target.closest('[data-sum-st]');
+  if(sumBadge){
+    const i=+sumBadge.dataset.sumSt;
+    const cyc={on:'mon',mon:'risk',risk:'on'};
+    SUM[i].s=cyc[SUM[i].s]||'on';
+    const w=WS.find(x=>x.name===SUM[i].n);
+    if(w)w.st=SUM[i].s;
+    showToast('Status → '+{on:'On Track',mon:'Monitor',risk:'At Risk'}[SUM[i].s]);
+    reRenderAll();
+    return;
+  }
+});
+
+function applyEdit(type,id,field,raw){
+  const numF=['d','i','t','tot','pct','p'];
+  const isNum=numF.includes(field);
+  const val=isNum?(raw===''||raw.toLowerCase()==='null'||raw==='—'?null:parseFloat(raw)):raw;
+  if(type==='ws'){
+    const w=WS.find(x=>x.id===id);if(!w)return;
+    const oldName=w.name;
+    w[field]=val;
+    // Auto-update tot when d/i/t changes
+    if(['d','i','t'].includes(field))w.tot=(w.d||0)+(w.i||0)+(w.t||0);
+    // Sync pct to SUM
+    if(field==='pct'){const si=SUM.findIndex(s=>s.n===w.name);if(si>=0)SUM[si].p=val;}
+    // Sync name to SUM
+    if(field==='name'){const si=SUM.findIndex(s=>s.n===oldName);if(si>=0)SUM[si].n=val;}
+    // Sync lead to SUM
+    if(field==='lead'){const si=SUM.findIndex(s=>s.n===w.name);if(si>=0)SUM[si].l=val;}
+  }else if(type==='sum'){
+    const i=+id;if(i<0||i>=SUM.length)return;
+    const oldN=SUM[i].n;
+    SUM[i][field]=val;
+    // Sync p to WS pct
+    if(field==='p'){const w=WS.find(x=>x.name===SUM[i].n);if(w)w.pct=val;}
+    // Sync n to WS name
+    if(field==='n'){const w=WS.find(x=>x.name===oldN);if(w)w.name=val;}
+    // Sync l to WS lead
+    if(field==='l'){const w=WS.find(x=>x.name===SUM[i].n);if(w)w.lead=val;}
+  }
+  reRenderAll();
+}
+
+function openArrEd(id,field,e){
+  if(e){e.stopPropagation();e.preventDefault();}
+  const w=WS.find(x=>x.id===id);if(!w)return;
+  const nm={hi:'Highlights',lo:'Lowlights',sup:'Support Required',nx:'Next Steps'};
+  document.getElementById('e-modal')?.remove();
+  const m=document.createElement('div');m.id='e-modal';
+  m.innerHTML=`<div class="e-mbg" onclick="document.getElementById('e-modal').remove()"></div>
+  <div class="e-mbox">
+    <div class="e-mhd"><span>${nm[field]||field} — ${w.name}</span><button onclick="document.getElementById('e-modal').remove()">×</button></div>
+    <div class="e-mhint">One bullet point per line. Blank lines are ignored.</div>
+    <textarea class="e-mta" id="e-ta">${(w[field]||[]).join('\n')}</textarea>
+    <div class="e-mft">
+      <button onclick="document.getElementById('e-modal').remove()">Cancel</button>
+      <button class="e-msave" onclick="saveArr('${id}','${field}')">Save</button>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>document.getElementById('e-ta')?.focus(),40);
+}
+
+function saveArr(wsId,field){
+  const ta=document.getElementById('e-ta');if(!ta)return;
+  const w=WS.find(x=>x.id===wsId);if(!w)return;
+  w[field]=ta.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  document.getElementById('e-modal')?.remove();
+  reRenderAll();
+}
+
+function exportCode(){
+  const replacer=(_,v)=>v===null?null:v;
+  const code='/* Updated: '+new Date().toLocaleString()+'*/\n\nconst WS='+JSON.stringify(WS,replacer,2)+';\n\nconst SUM='+JSON.stringify(SUM,replacer,2)+';';
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(code).then(()=>showToast('✓ WS[] & SUM[] copied to clipboard')).catch(fb);
+  }else{fb();}
+  function fb(){const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();showToast('✓ WS[] & SUM[] copied to clipboard');}
+}
+
+function showToast(msg){
+  const t=document.getElementById('e-toast');if(!t)return;
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>{t.style.opacity='0';},2400);
+}
 </script>
 </body>
 </html>
