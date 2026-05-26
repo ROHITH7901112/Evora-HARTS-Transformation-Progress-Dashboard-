@@ -517,7 +517,7 @@ function renderWS(){
     const c=sc(w.st),l=sl(w.st),sp=spc(w.st);
     const whi=w.hi||[],wlo=w.lo||[],wsup=w.sup||[],wnx=w.nx||[];
     const dp=pof(w.d,w.tot),ip=pof(w.i,w.tot),tp=pof(w.t,w.tot);
-    const pd=editMode&&w.pct!=null?EP('ws',w.id,'pct',w.pct):(w.pct!=null?w.pct+'%':w.phase||'—');
+    const pd=w.pct!=null?(editMode?EP('ws',w.id,'pct',w.pct):w.pct+'%'):(editMode?E('ws',w.id,'phase',w.phase||''):w.phase||'—');
     const jbase=`https://evorait.atlassian.net/issues/?jql=project%20%3D%20${w.proj}`;
 
     // CELL 1 — Updates
@@ -682,7 +682,7 @@ function renderWS(){
           <div class="ws-num">${w.num}</div>
           <div>
             <div class="wsn">${E('ws',w.id,'name',w.name)}</div>
-            <div class="wsm">Lead: <strong>${E('ws',w.id,'lead',w.lead)}</strong>${w.phase?' &nbsp;·&nbsp; Phase: '+w.phase:''}</div>
+            <div class="wsm">Lead: <strong>${E('ws',w.id,'lead',w.lead)}</strong>${w.phase?' &nbsp;·&nbsp; Phase: '+E('ws',w.id,'phase',w.phase):''}</div>
           </div>
         </div>
         <div class="ws-right">
