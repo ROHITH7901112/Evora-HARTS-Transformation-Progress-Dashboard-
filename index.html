@@ -827,18 +827,32 @@ function tgDark(){
   if(document.getElementById('s-ws').classList.contains('active'))setTimeout(renderWS,50);
 }
 
-// Load any previously saved edits from localStorage
-(function loadSaved(){
-  try{
-    const ws=localStorage.getItem('evora_ws');
-    const sm=localStorage.getItem('evora_sum');
-    if(ws){const d=JSON.parse(ws);d.forEach((v,i)=>{if(WS[i])Object.assign(WS[i],v);});}
-    if(sm){const d=JSON.parse(sm);d.forEach((v,i)=>{if(SUM[i])Object.assign(SUM[i],v);});}
-  }catch(e){}
-})();
+// Baseline = server state at load time (used for 3-way merge on publish)
+let BASELINE={ws:null,sum:null};
 
-renderSumTable();
-renderOvCharts();
+// Load data.json from server, then apply any local unsaved edits on top
+async function initData(){
+  try{
+    const r=await fetch('/data.json?t='+Date.now());
+    if(r.ok){
+      const d=await r.json();
+      if(d.ws) d.ws.forEach((v,i)=>{if(WS[i])Object.assign(WS[i],v);});
+      if(d.sum) d.sum.forEach((v,i)=>{if(SUM[i])Object.assign(SUM[i],v);});
+    }
+  }catch(e){}
+  // Snapshot server state as baseline before applying local overrides
+  BASELINE={ws:JSON.parse(JSON.stringify(WS)),sum:JSON.parse(JSON.stringify(SUM))};
+  // Apply any locally saved (unpublished) edits on top
+  try{
+    const lw=localStorage.getItem('evora_ws');
+    const ls=localStorage.getItem('evora_sum');
+    if(lw){const d=JSON.parse(lw);d.forEach((v,i)=>{if(WS[i])Object.assign(WS[i],v);});}
+    if(ls){const d=JSON.parse(ls);d.forEach((v,i)=>{if(SUM[i])Object.assign(SUM[i],v);});}
+  }catch(e){}
+  renderSumTable();
+  renderOvCharts();
+}
+initData();
 
 // ===== EDIT MODE =====
 
@@ -1006,11 +1020,21 @@ async function publishToGitHub(){
     const res=await fetch('/api/publish',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ws:WS,sum:SUM})
+      body:JSON.stringify({ws:WS,sum:SUM,baseline:BASELINE})
     });
     const d=await res.json();
-    if(res.ok){showToast('✓ Published — Vercel deploying (~30s)');}
-    else{showToast('❌ '+(d.error||res.status));}
+    if(res.ok){
+      // Update baseline to reflect what was just published; clear local overrides
+      BASELINE={ws:JSON.parse(JSON.stringify(WS)),sum:JSON.parse(JSON.stringify(SUM))};
+      localStorage.removeItem('evora_ws');
+      localStorage.removeItem('evora_sum');
+      showToast('✓ Published — Vercel deploying (~30s)');
+    }else if(res.status===409){
+      showToast('⚠ Conflict — someone else published simultaneously. Retrying…');
+      setTimeout(publishToGitHub,1500);
+    }else{
+      showToast('❌ '+(d.error||res.status));
+    }
   }catch(e){showToast('❌ '+e.message);}
 }
 
