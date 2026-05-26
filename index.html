@@ -522,8 +522,8 @@ function renderWS(){
 
     // CELL 1 — Updates
     let c1=`<div class="cell ct" style="--ca:${N}"><div class="cell-lbl">Updates ${w.st==='mon'?`<span class="atag">Monitor</span>`:''}</div>`;
-    if(whi.length||editMode){c1+=`<div class="slbl h">${evArr(w.id,'hi',' Highlights')}</div><ul class="bl">`;whi.forEach(h=>c1+=`<li class="hi">${h}</li>`);c1+=`</ul>`;}
-    if(wlo.length||editMode){c1+=`<div class="slbl l" style="margin-top:12px">${evArr(w.id,'lo','Lowlights')}</div><ul class="bl">`;wlo.forEach(l=>c1+=`<li class="lo">${l}</li>`);c1+=`</ul>`;}
+    c1+=`<div class="slbl h">${evArr(w.id,'hi',' Highlights')}</div><ul class="bl">`;whi.forEach(h=>c1+=`<li class="hi">${h}</li>`);c1+=`</ul>`;
+    c1+=`<div class="slbl l" style="margin-top:12px">${evArr(w.id,'lo','Lowlights')}</div><ul class="bl">`;wlo.forEach(l=>c1+=`<li class="lo">${l}</li>`);c1+=`</ul>`;
     c1+=`</div>`;
 
     // CELL 2 — Support + Next Steps
