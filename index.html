@@ -891,10 +891,10 @@ function renderWS(){
 
       <!-- KPI strip -->
       <div class="rkr" style="margin-bottom:16px">
-        <div class="rk kpi-orange"><div class="rkv" style="color:#C2410C">12</div><div class="rkl">Total Positions</div></div>
-        <div class="rk kpi-green"><div class="rkv" style="color:#2E7D32">8</div><div class="rkl">Closed / Hired</div></div>
-        <div class="rk kpi-amber"><div class="rkv" style="color:#A16207">4</div><div class="rkl">In Progress</div></div>
-        <div class="rk kpi-blue"><div class="rkv" style="color:#1E3A8A">58</div><div class="rkl">Avg Days to Fill</div></div>
+        <div class="rk kpi-orange"><div class="rkv" style="color:#C2410C">${w.tot}</div><div class="rkl">Total Positions</div></div>
+        <div class="rk kpi-green"><div class="rkv" style="color:#2E7D32">${w.d}</div><div class="rkl">Closed / Hired</div></div>
+        <div class="rk kpi-amber"><div class="rkv" style="color:#A16207">${w.i}</div><div class="rkl">In Progress</div></div>
+        <div class="rk kpi-blue"><div class="rkv" style="color:#1E3A8A">${w.avgDays||'—'}</div><div class="rkl">Avg Days to Fill</div></div>
       </div>
 
       <!-- Hiring Pipeline table -->
@@ -991,8 +991,9 @@ function renderWS(){
           <th style="text-align:left;font-size:9px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;padding:0 4px 7px;border-bottom:1px solid var(--border);font-family:var(--font);width:10%">Lvl</th>
         </tr></thead>
         <tbody>${w.closed.map(pos=>{
-          const lvlMap={'Human Resource Jr. (German Speaking)':'L1','Human Resource (German Speaking)':'L2','Innovation Consultant (Tech Jr.)':'L2','Web Marketing Specialist':'L2','Innovation Consultant (Ecosystem Lead)':'L3','Innovation Consultant (Tech Lead)':'L3','Chief of Staff / SOL':'L4','Marketing Comms Technical expert (website maintenance, content & branding)':'L2'};
-          const lvl=lvlMap[pos]||'';
+          const lvlMap={'Human Resource Jr.':'L1','Human Resource (German Speaking)':'L2','Innovation Consultant (Tech Jr.)':'L2','Web Marketing Specialist':'L2','Marketing Comms Technical Expert':'L2','Innovation Consultant (Ecosystem Lead)':'L3','Innovation Consultant (Tech Lead)':'L3','US Executive Workshop Facilitator':'L3','Americas Recruiter':'L3','Chief of Staff':'L4','IT Manager':'L4','Head of Finance':'L5'};
+          const base=pos.split('—')[0].split('—')[0].trim();
+          const lvl=Object.keys(lvlMap).find(k=>base.startsWith(k))?lvlMap[Object.keys(lvlMap).find(k=>base.startsWith(k))]:'';
           return `<tr><td style="padding:6px 4px;color:var(--text2);border-bottom:1px solid var(--border);line-height:1.3">${pos}</td><td style="padding:6px 4px;color:${G};font-weight:700;border-bottom:1px solid var(--border)">${lvl}</td></tr>`;
         }).join('')}</tbody>
       </table>
@@ -1087,24 +1088,35 @@ function renderWS(){
       ctx.restore();
     }};
 
+    const recW=WS.find(x=>x.isRec)||{};
+    const recTrend=recW.closureTrend||[0,0,0,0,0,0,0,0,0,0,0,0];
+    const recAging=recW.aging||[0,0,0,0,0,0];
+    const recTimeFill=recW.timeFill||[0,0,0,0,0,0];
+    const recLevels=recW.avgByLevel||[0,0,0,0,0,0];
+    // Open Positions — computed from pipe buckets
+    const pipeBuckets={};(recW.pipe||[]).forEach(p=>{pipeBuckets[p.b]=(pipeBuckets[p.b]||0)+1;});
+    const openLabels=Object.keys(pipeBuckets);
+    const openData=openLabels.map(l=>pipeBuckets[l]);
+    const openColors=['#1D66B1','#F97316','#9CA3AF','#10B981'];
+
     if(ch['rec-closure'])ch['rec-closure'].destroy();
     ch['rec-closure']=new Chart(document.getElementById('rec-closure'),{
       type:'line',
-      data:{labels:['January','February','March','April','May','June','July','August','September','October','November','December'],
-        datasets:[{data:[0,1,3,2,1,0,0,0,0,0,0,0],
+      data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets:[{data:recTrend,
           borderColor:N,backgroundColor:'rgba(30,58,95,.25)',fill:true,pointRadius:3,pointBackgroundColor:N,tension:0.3}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:true}},
-        scales:{y:{beginAtZero:true,max:3,grid:{color:gc()},ticks:{stepSize:1,font:{size:9}}},
+        scales:{y:{beginAtZero:true,grid:{color:gc()},ticks:{stepSize:1,font:{size:9}}},
           x:{grid:{display:false},ticks:{font:{size:8}}}}}
     });
 
     if(ch['rec-open'])ch['rec-open'].destroy();
     ch['rec-open']=new Chart(document.getElementById('rec-open'),{
       type:'bar',
-      data:{labels:['ESP','Mini CXO','Others'],
-        datasets:[{data:[3,0,1],backgroundColor:['#1D66B1','#F97316','#9CA3AF'],borderRadius:4}]},
+      data:{labels:openLabels,
+        datasets:[{data:openData,backgroundColor:openColors.slice(0,openLabels.length),borderRadius:4}]},
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:28}},plugins:{legend:{display:false},tooltip:{enabled:false}},
-        scales:{x:{beginAtZero:true,max:4,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
+        scales:{x:{beginAtZero:true,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
           y:{grid:{display:false},ticks:{font:{size:8}}}}},
       plugins:[recValueLabels]
     });
@@ -1112,10 +1124,10 @@ function renderWS(){
     if(ch['rec-aging'])ch['rec-aging'].destroy();
     ch['rec-aging']=new Chart(document.getElementById('rec-aging'),{
       type:'bar',
-      data:{labels:['0-5','5-15','15-30','30-60','60-90','>90'],
-        datasets:[{data:[0,0,1,1,1,2],backgroundColor:['#CBD5E1','#CBD5E1','#10B981','#F59E0B','#F97316','#DC2626'],borderRadius:4}]},
+      data:{labels:['0-5d','5-15d','15-30d','30-60d','60-90d','>90d'],
+        datasets:[{data:recAging,backgroundColor:['#CBD5E1','#CBD5E1','#10B981','#F59E0B','#F97316','#DC2626'],borderRadius:4}]},
       options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:14}},plugins:{legend:{display:false},tooltip:{enabled:false}},
-        scales:{y:{beginAtZero:true,max:3,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
+        scales:{y:{beginAtZero:true,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
           x:{grid:{display:false},ticks:{font:{size:8}}}}},
       plugins:[recValueLabels]
     });
@@ -1123,10 +1135,10 @@ function renderWS(){
     if(ch['rec-timefill'])ch['rec-timefill'].destroy();
     ch['rec-timefill']=new Chart(document.getElementById('rec-timefill'),{
       type:'bar',
-      data:{labels:['0-5','5-15','15-30','30-60','60-90','>90'],
-        datasets:[{data:[0,2,0,3,3,0],backgroundColor:['#CBD5E1','#84CC16','#CBD5E1','#F59E0B','#F97316','#CBD5E1'],borderRadius:4}]},
+      data:{labels:['0-5d','5-15d','15-30d','30-60d','60-90d','>90d'],
+        datasets:[{data:recTimeFill,backgroundColor:['#CBD5E1','#84CC16','#CBD5E1','#F59E0B','#F97316','#DC2626'],borderRadius:4}]},
       options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:14}},plugins:{legend:{display:false},tooltip:{enabled:false}},
-        scales:{y:{beginAtZero:true,max:3,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
+        scales:{y:{beginAtZero:true,grid:{color:gc()},ticks:{stepSize:1,font:{size:8}}},
           x:{grid:{display:false},ticks:{font:{size:8}}}}},
       plugins:[recValueLabels]
     });
@@ -1134,10 +1146,10 @@ function renderWS(){
     if(ch['rec-levels'])ch['rec-levels'].destroy();
     ch['rec-levels']=new Chart(document.getElementById('rec-levels'),{
       type:'bar',
-      data:{labels:['L1-Associate','L2-Specialist','L3-Lead','L4-Manager','L5-Senior Leadership','L6-Executive Leadership'],
-        datasets:[{data:[53,41,75,82,0,0],backgroundColor:['#F97316','#F59E0B','#EA580C','#DC2626','#CBD5E1','#CBD5E1'],borderRadius:4}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{left:12}},plugins:{legend:{display:false},tooltip:{enabled:false}},
-        scales:{x:{beginAtZero:true,max:90,grid:{color:gc()},ticks:{stepSize:10,font:{size:8}}},
+      data:{labels:['L1-Associate','L2-Specialist','L3-Lead','L4-Manager','L5-Sr. Leadership'],
+        datasets:[{data:recLevels,backgroundColor:['#F97316','#F59E0B','#EA580C','#DC2626','#CBD5E1'],borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{left:12,right:28}},plugins:{legend:{display:false},tooltip:{enabled:false}},
+        scales:{x:{beginAtZero:true,grid:{color:gc()},ticks:{stepSize:10,font:{size:8}}},
           y:{grid:{display:false},ticks:{font:{size:8}}}}},
       plugins:[recValueLabels]
     });

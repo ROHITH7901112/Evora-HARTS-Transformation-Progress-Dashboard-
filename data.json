@@ -494,7 +494,12 @@
       "done": [],
       "dList": [],
       "ipList": [],
-      "tdList": []
+      "tdList": [],
+      "avgDays": 59,
+      "closureTrend": [0,1,3,1,2,0,0,0,0,0,0,0],
+      "timeFill": [0,1,0,3,4,0],
+      "avgByLevel": [53,60,53,82,0],
+      "aging": [0,0,0,1,1,2]
     },
     {
       "id": "il",
