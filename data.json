@@ -425,26 +425,34 @@
       "num": 7,
       "name": "Recruitment",
       "lead": "Renuka Desshpande",
-      "pct": 55,
+      "pct": 69,
       "st": "on",
       "proj": "Strategy Office + HARTS",
-      "d": 8,
+      "d": 9,
       "i": 4,
       "t": 0,
-      "tot": 12,
+      "tot": 13,
       "isRec": true,
       "lo": [],
       "closed": [
-        "Chief of Staff / SOL - Jan Erik",
-        "Human Resource (German Speaking)",
-        "Human Resource Jr. (German Speaking)",
-        "Innovation Consultant (Ecosystem Lead)",
-        "Innovation Consultant (Tech Jr.)",
-        "Innovation Consultant (Tech Lead)",
+        "Chief of Staff / SOL — Kakoli Das (Jan-Erik)",
+        "Human Resource (German Speaking) — Namrata Purohit & Pranita Naidu (Prinita joining 15 Jul 2026)",
+        "Human Resource Jr. (German Speaking) — Vaikharee Damle",
+        "Innovation Consultant (Ecosystem Lead) — Chethan Arasu N C",
+        "Innovation Consultant (Tech Jr.) — Mohanraja",
+        "Innovation Consultant (Tech Lead) — Sai Nikhilesh (joining 1 Jul 2026)",
         "Web Marketing Specialist",
-        "Marketing Comms Technical Expert - Haripreeth (joined 25 May)"
+        "Marketing Comms Technical Expert — Haripreeth Thota (joined 25 May)",
+        "US Executive Workshop Facilitator — Juliann Weiss (completed)"
       ],
       "pipe": [
+        {
+          "b": "ESP",
+          "r": "Chief of Staff / SOL (2nd) — Sathana as interim mini CXO",
+          "l": "L4",
+          "st": "WIP",
+          "s": "Screening"
+        },
         {
           "b": "ESP",
           "r": "IT Manager - India Operations (ESOH-29)",
@@ -453,43 +461,35 @@
           "s": "Screening"
         },
         {
-          "b": "ESP",
-          "r": "Innovation Technical Lead - Nikhilesh (ESOH-7)",
-          "l": "L4",
-          "st": "WIP",
-          "s": "Offer Given"
-        },
-        {
           "b": "Others",
-          "r": "Americas Recruiter (ESOH-22)",
+          "r": "Americas Recruiter / Talent Acquisition Specialist (ESOH-22)",
           "l": "L3",
           "st": "WIP",
-          "s": "In Progress"
+          "s": "Hiring"
         },
         {
           "b": "ESP",
           "r": "Head of Finance - India (ESOH-58)",
           "l": "L5",
           "st": "WIP",
-          "s": "JD Pending"
+          "s": "Screening"
         }
       ],
       "hi": [
-        "Chetan joined 26 Mar — Innovation Business Lead (Done)",
-        "Haripreeth joined 25 May — Marketing Comms Technical Expert (Done)",
-        "Nikhilesh: offer given — Innovation Technical Lead (In Progress)",
-        "IT Manager India/ESP: hiring in progress (ESOH-29)",
-        "Americas Recruiter: active search, due 30 Jun (ESOH-22)"
+        "Sai Nikhilesh hired as Innovation Consultant (Tech Lead) — joining 1 Jul 2026",
+        "Juliann Weiss hired as US Executive Workshop Facilitator — workshop completed",
+        "Haripreeth Thota joined 25 May — Marketing Comms Technical Expert",
+        "9 of 13 positions filled (69% completion rate)"
       ],
       "sup": [
         "Timely availability of hiring managers for interview panels",
         "JD finalisation for upcoming roles"
       ],
       "nx": [
-        "Confirm Nikhilesh joining date — Innovation Technical Lead offer given (ESOH-7)",
-        "Complete IT Manager India/ESP hiring (ESOH-29 In Progress)",
-        "Head of Finance — India: JD to be created (ESOH-58, new, unassigned)",
-        "Finance Sonja replacement: JD to be created (ESOH-57, new, unassigned)"
+        "Confirm early joining for Sai Nikhilesh (currently 1 Jul 2026)",
+        "Confirm Prinita joining — HR German Speaking 2nd position (15 Jul 2026)",
+        "Continue Chief of Staff / SOL 2nd search — Sathana as interim mini CXO",
+        "Complete IT Manager India/ESP hiring (ESOH-29)"
       ],
       "done": [],
       "dList": [],
